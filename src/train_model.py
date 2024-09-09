@@ -92,16 +92,21 @@ def test(model, device, test_loader):
     return accuracy
 
 early_stopping_threshold = 99.5
-for epoch in range(1, 11):
-    train(model, device, train_loader, optimizer, epoch)
-    scheduler.step()
-    accuracy = test(model, device, test_loader)
+with torch.profiler.profile(schedule=torch.profiler.schedule(wait=1, warmup=1, active=3, repeat=2),
+                             on_trace_ready=torch.profiler.tensorboard_trace_handler('./log'),
+                             record_shapes=True,
+                             with_stack=True) as prof:
+    for epoch in range(1, 11):
+        train(model, device, train_loader, optimizer, epoch)
+        scheduler.step()
+        accuracy = test(model, device, test_loader)
+        prof.step()
     
-    print(f'Epoch {epoch} ended. Accuracy: {accuracy:.2f}%')
+        print(f'Epoch {epoch} ended. Accuracy: {accuracy:.2f}%')
 
 
-    if accuracy >= early_stopping_threshold:
-        print(f"Early stopping at epoch {epoch} with accuracy {accuracy:.2f}%")
-        break
+        if accuracy >= early_stopping_threshold:
+            print(f"Early stopping at epoch {epoch} with accuracy {accuracy:.2f}%")
+            break
 
 torch.save(model.state_dict(), "mnist_model.pth")
