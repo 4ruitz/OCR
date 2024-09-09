@@ -30,7 +30,7 @@ class Net(nn.Module):
         self.conv3 = nn.Conv2d(128, 256, kernel_size=3, padding=1)
         self.bn3 = nn.BatchNorm2d(256)
         self.pool = nn.MaxPool2d(2, 2)
-        self.dropout = nn.Dropout(0.3)  # Reduced dropout rate
+        self.dropout = nn.Dropout(0.3)
         self.fc1 = nn.Linear(256 * 3 * 3, 512)
         self.fc2 = nn.Linear(512, 256)
         self.fc3 = nn.Linear(256, 10)
