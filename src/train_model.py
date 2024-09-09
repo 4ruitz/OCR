@@ -21,8 +21,9 @@ transform = transforms.Compose([
 train_dataset = datasets.MNIST(root='./data', train=True, download=True, transform=transform)
 test_dataset = datasets.MNIST(root='./data', train=False, download=True, transform=transform)
 
-train_loader = DataLoader(dataset=train_dataset, batch_size=64, shuffle=True)
-test_loader = DataLoader(dataset=test_dataset, batch_size=64, shuffle=False)
+train_loader = DataLoader(dataset=train_dataset, batch_size=128, shuffle=True, num_workers=4)
+test_loader = DataLoader(dataset=test_dataset, batch_size=128, shuffle=False, num_workers=4)
+
 
 class Net(nn.Module):
     def __init__(self):
@@ -103,7 +104,7 @@ with torch.profiler.profile(schedule=torch.profiler.schedule(wait=1, warmup=1, a
         prof.step()
     
         print(f'Epoch {epoch} ended. Accuracy: {accuracy:.2f}%')
-
+        print(next(model.parameters()).device)
 
         if accuracy >= early_stopping_threshold:
             print(f"Early stopping at epoch {epoch} with accuracy {accuracy:.2f}%")
