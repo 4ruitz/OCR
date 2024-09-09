@@ -6,6 +6,10 @@ import torch.nn.functional as F
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
+print(torch.cuda.is_available())
+print(torch.cuda.current_device())
+print(torch.cuda.get_device_name(torch.cuda.current_device()))
+
 
 transform = transforms.Compose([
     transforms.RandomRotation(10),
