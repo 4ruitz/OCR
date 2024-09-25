@@ -6,10 +6,13 @@ import torch.nn.functional as F
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
+<<<<<<< HEAD
 # print(torch.cuda.is_available())
 # print(torch.cuda.current_device())
 # print(torch.cuda.get_device_name(torch.cuda.current_device()))
 
+=======
+>>>>>>> 679246426fe47db2380712b70ebc280a6f375ef0
 
 transform = transforms.Compose([
     transforms.RandomRotation(10),
@@ -21,9 +24,14 @@ transform = transforms.Compose([
 train_dataset = datasets.MNIST(root='./data', train=True, download=True, transform=transform)
 test_dataset = datasets.MNIST(root='./data', train=False, download=True, transform=transform)
 
+<<<<<<< HEAD
 train_loader = DataLoader(dataset=train_dataset, batch_size=64, shuffle=True, num_workers=4)
 test_loader = DataLoader(dataset=test_dataset, batch_size=64, shuffle=False, num_workers=4)
 
+=======
+train_loader = DataLoader(dataset=train_dataset, batch_size=64, shuffle=True)
+test_loader = DataLoader(dataset=test_dataset, batch_size=64, shuffle=False)
+>>>>>>> 679246426fe47db2380712b70ebc280a6f375ef0
 
 class Net(nn.Module):
     def __init__(self):
@@ -93,21 +101,16 @@ def test(model, device, test_loader):
     return accuracy
 
 early_stopping_threshold = 99.5
-with torch.profiler.profile(schedule=torch.profiler.schedule(wait=1, warmup=1, active=3, repeat=2),
-                             on_trace_ready=torch.profiler.tensorboard_trace_handler('./log'),
-                             record_shapes=True,
-                             with_stack=True) as prof:
-    for epoch in range(1, 11):
-        train(model, device, train_loader, optimizer, epoch)
-        scheduler.step()
-        accuracy = test(model, device, test_loader)
-        prof.step()
+for epoch in range(1, 11):
+    train(model, device, train_loader, optimizer, epoch)
+    scheduler.step()
+    accuracy = test(model, device, test_loader)
     
-        print(f'Epoch {epoch} ended. Accuracy: {accuracy:.2f}%')
-        print(next(model.parameters()).device)
+    print(f'Epoch {epoch} ended. Accuracy: {accuracy:.2f}%')
 
-        if accuracy >= early_stopping_threshold:
-            print(f"Early stopping at epoch {epoch} with accuracy {accuracy:.2f}%")
-            break
+
+    if accuracy >= early_stopping_threshold:
+        print(f"Early stopping at epoch {epoch} with accuracy {accuracy:.2f}%")
+        break
 
 torch.save(model.state_dict(), "mnist_model_2.pth")
