@@ -6,9 +6,9 @@ import torch.nn.functional as F
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
-print(torch.cuda.is_available())
-print(torch.cuda.current_device())
-print(torch.cuda.get_device_name(torch.cuda.current_device()))
+# print(torch.cuda.is_available())
+# print(torch.cuda.current_device())
+# print(torch.cuda.get_device_name(torch.cuda.current_device()))
 
 
 transform = transforms.Compose([
@@ -21,8 +21,8 @@ transform = transforms.Compose([
 train_dataset = datasets.MNIST(root='./data', train=True, download=True, transform=transform)
 test_dataset = datasets.MNIST(root='./data', train=False, download=True, transform=transform)
 
-train_loader = DataLoader(dataset=train_dataset, batch_size=128, shuffle=True, num_workers=4)
-test_loader = DataLoader(dataset=test_dataset, batch_size=128, shuffle=False, num_workers=4)
+train_loader = DataLoader(dataset=train_dataset, batch_size=64, shuffle=True, num_workers=4)
+test_loader = DataLoader(dataset=test_dataset, batch_size=64, shuffle=False, num_workers=4)
 
 
 class Net(nn.Module):
@@ -110,4 +110,4 @@ with torch.profiler.profile(schedule=torch.profiler.schedule(wait=1, warmup=1, a
             print(f"Early stopping at epoch {epoch} with accuracy {accuracy:.2f}%")
             break
 
-torch.save(model.state_dict(), "mnist_model.pth")
+torch.save(model.state_dict(), "mnist_model_2.pth")
