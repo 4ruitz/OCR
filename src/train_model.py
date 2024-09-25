@@ -6,13 +6,6 @@ import torch.nn.functional as F
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
-<<<<<<< HEAD
-# print(torch.cuda.is_available())
-# print(torch.cuda.current_device())
-# print(torch.cuda.get_device_name(torch.cuda.current_device()))
-
-=======
->>>>>>> 679246426fe47db2380712b70ebc280a6f375ef0
 
 transform = transforms.Compose([
     transforms.RandomRotation(10),
@@ -24,14 +17,8 @@ transform = transforms.Compose([
 train_dataset = datasets.MNIST(root='./data', train=True, download=True, transform=transform)
 test_dataset = datasets.MNIST(root='./data', train=False, download=True, transform=transform)
 
-<<<<<<< HEAD
-train_loader = DataLoader(dataset=train_dataset, batch_size=64, shuffle=True, num_workers=4)
-test_loader = DataLoader(dataset=test_dataset, batch_size=64, shuffle=False, num_workers=4)
-
-=======
 train_loader = DataLoader(dataset=train_dataset, batch_size=64, shuffle=True)
 test_loader = DataLoader(dataset=test_dataset, batch_size=64, shuffle=False)
->>>>>>> 679246426fe47db2380712b70ebc280a6f375ef0
 
 class Net(nn.Module):
     def __init__(self):
