@@ -32,3 +32,6 @@ A simple project to recognize handwritten numbers (0-9) using a convolutional ne
    ```bash
    pip install -r requirements.txt
 3. Ensure PyTorch is installed. Refer to the official [PyTorch website](https://pytorch.org/get-started/locally/) for installation instructions tailored to your hardware.
+
+You can copy this directly into your `README.md` file, and it will render properly on GitHub.
+
