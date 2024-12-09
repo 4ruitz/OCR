@@ -100,4 +100,4 @@ for epoch in range(1, 11):
         print(f"Early stopping at epoch {epoch} with accuracy {accuracy:.2f}%")
         break
 
-torch.save(model.state_dict(), "mnist_model_2.pth")
+torch.save(model.state_dict(), "mnist_model.pth")
