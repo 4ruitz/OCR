@@ -1,7 +1,7 @@
 # PyTorch Handwritten Numbers OCR
 
 A simple project to recognize handwritten numbers (0-9) using a convolutional neural network (CNN) built with PyTorch. The model is trained on the MNIST dataset and can be used to predict handwritten digits from images.
-(This project was a learning tool and should not be used in production or as a teaching resource as it is not validated outside of my own testing conditions and I am still very new to the AI space.)
+- (This project was a learning tool and should not be used in production or as a teaching resource as it is not validated outside of my own testing conditions and I am still very new to the AI space.)
 
 ## Features
 
