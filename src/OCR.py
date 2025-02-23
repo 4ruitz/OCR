@@ -77,10 +77,10 @@ class ImageHandler(FileSystemEventHandler):
 
 
 def main():
-    watch_dir = "FTP_Folder"  # Set your folder path here
+    watch_dir = "FTP_Folder"
     print(f"Watching directory: {watch_dir}")
 
-    # Initialize OCR with PLC details
+
     ocr = OCR(model_path="model.pth", plc_ip='192.168.0.1', db_number=1, start_offset=0)
     event_handler = ImageHandler(ocr)
     observer = Observer()
