@@ -8,21 +8,28 @@ from PIL import Image
 import torch
 import snap7
 from snap7.util import set_int
-from Model import CNN 
+from Model import CNN
+
 
 class OCR:
-    def __init__(self, model_path="model.pth", plc_ip='192.168.0.1', db_number=1, start_offset=0):
+    def __init__(
+        self, model_path="model.pth", plc_ip="192.168.0.1", db_number=1, start_offset=0
+    ):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = CNN().to(self.device)
-        self.model.load_state_dict(torch.load(model_path, map_location=self.device)["model_state_dict"])
+        self.model.load_state_dict(
+            torch.load(model_path, map_location=self.device)["model_state_dict"]
+        )
         self.model.eval()
 
-        self.transform = transforms.Compose([
-            transforms.Resize((28, 28)),
-            transforms.Grayscale(num_output_channels=1),
-            transforms.ToTensor(),
-            transforms.Normalize((0.1307,), (0.3081,))
-        ])
+        self.transform = transforms.Compose(
+            [
+                transforms.Resize((28, 28)),
+                transforms.Grayscale(num_output_channels=1),
+                transforms.ToTensor(),
+                transforms.Normalize((0.1307,), (0.3081,)),
+            ]
+        )
 
         self.plc_ip = plc_ip
         self.db_number = db_number
@@ -42,15 +49,17 @@ class OCR:
 
     def send_PLC(self, int_value):
         plc = snap7.client.Client()
-        plc.connect(self.plc_ip, 0, 1)  
+        plc.connect(self.plc_ip, 0, 1)
 
         data = bytearray(2)
         set_int(data, 0, int_value)
-        
+
         plc.db_write(self.db_number, self.start_offset, data)
-        
+
         plc.disconnect()
-        print(f"Integer {int_value} written to DB{self.db_number} at offset {self.start_offset}.")
+        print(
+            f"Integer {int_value} written to DB{self.db_number} at offset {self.start_offset}."
+        )
 
 
 class ImageHandler(FileSystemEventHandler):
@@ -60,7 +69,9 @@ class ImageHandler(FileSystemEventHandler):
         threading.Thread(target=self._process_queue, daemon=True).start()
 
     def on_created(self, event):
-        if not event.is_directory and event.src_path.lower().endswith((".png", ".jpg", ".jpeg")):
+        if not event.is_directory and event.src_path.lower().endswith(
+            (".png", ".jpg", ".jpeg")
+        ):
             print(f"New image detected: {event.src_path}")
             self.processing_queue.put(event.src_path)
 
@@ -80,8 +91,7 @@ def main():
     watch_dir = "FTP_Folder"
     print(f"Watching directory: {watch_dir}")
 
-
-    ocr = OCR(model_path="model.pth", plc_ip='192.168.0.1', db_number=1, start_offset=0)
+    ocr = OCR(model_path="model.pth", plc_ip="192.168.0.1", db_number=1, start_offset=0)
     event_handler = ImageHandler(ocr)
     observer = Observer()
     observer.schedule(event_handler, path=watch_dir, recursive=False)

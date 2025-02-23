@@ -13,6 +13,7 @@ from watchdog.events import FileSystemEventHandler
 import threading
 import queue
 
+
 class CustomDataset(Dataset):
     def __init__(self, images, labels, transform=None):
         self.images = images
@@ -36,11 +37,13 @@ class Trainer:
         print(f"Using device: {self.device}")
         self.model = CNN().to(self.device)
         self.model_path = model_path
-        self.transform = transforms.Compose([
-            transforms.Resize((28, 28)),
-            transforms.ToTensor(),
-            transforms.Normalize((0.1307,), (0.3081,)),
-        ])
+        self.transform = transforms.Compose(
+            [
+                transforms.Resize((28, 28)),
+                transforms.ToTensor(),
+                transforms.Normalize((0.1307,), (0.3081,)),
+            ]
+        )
         self.custom_images = []
         self.custom_labels = []
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr)
@@ -72,7 +75,9 @@ class Trainer:
                 self.optimizer.step()
 
                 if batch_idx % 100 == 0:
-                    print(f"Train Epoch: {epoch+1} [{batch_idx * len(data)}/{len(train_loader.dataset)}]	Loss: {loss.item():.6f}")
+                    print(
+                        f"Train Epoch: {epoch+1} [{batch_idx * len(data)}/{len(train_loader.dataset)}]	Loss: {loss.item():.6f}"
+                    )
 
             accuracy = self.test(test_loader)
             if accuracy > best_accuracy:
@@ -94,11 +99,19 @@ class Trainer:
 
         test_loss /= len(test_loader.dataset)
         accuracy = 100.0 * correct / len(test_loader.dataset)
-        print(f"\nTest set: Average loss: {test_loss:.4f}, Accuracy: {correct}/{len(test_loader.dataset)} ({accuracy:.2f}%)\n")
+        print(
+            f"\nTest set: Average loss: {test_loss:.4f}, Accuracy: {correct}/{len(test_loader.dataset)} ({accuracy:.2f}%)\n"
+        )
         return accuracy
 
     def save_model(self):
-        torch.save({"model_state_dict": self.model.state_dict(), "optimizer_state_dict": self.optimizer.state_dict()}, self.model_path)
+        torch.save(
+            {
+                "model_state_dict": self.model.state_dict(),
+                "optimizer_state_dict": self.optimizer.state_dict(),
+            },
+            self.model_path,
+        )
         print(f"Model saved to {self.model_path}")
 
     def load_model(self):
@@ -150,7 +163,9 @@ class Trainer:
             pred = output.argmax(dim=1).item()
 
         print(f"\nPrediction for {os.path.basename(image_path)}: {pred}")
-        label = input("Enter the correct digit (0-9) or press Enter to confirm: ").strip()
+        label = input(
+            "Enter the correct digit (0-9) or press Enter to confirm: "
+        ).strip()
 
         if label == "":
             print("Prediction confirmed")
@@ -174,7 +189,9 @@ class Trainer:
             return
 
         print("\nFine-tuning model on custom images...")
-        custom_dataset = CustomDataset(self.custom_images, self.custom_labels, transform=self.transform)
+        custom_dataset = CustomDataset(
+            self.custom_images, self.custom_labels, transform=self.transform
+        )
         custom_loader = DataLoader(custom_dataset, batch_size=1, shuffle=True)
 
         self.model.train()
@@ -200,7 +217,9 @@ class ImageHandler(FileSystemEventHandler):
         threading.Thread(target=self._process_queue, daemon=True).start()
 
     def on_created(self, event):
-        if not event.is_directory and event.src_path.lower().endswith((".png", ".jpg", ".jpeg", ".bmp")):
+        if not event.is_directory and event.src_path.lower().endswith(
+            (".png", ".jpg", ".jpeg", ".bmp")
+        ):
             print(f"New image detected: {event.src_path}")
             self.processing_queue.put(event.src_path)
 
@@ -230,7 +249,9 @@ def main():
     observer.schedule(event_handler, path=str(watch_dir), recursive=False)
     observer.start()
 
-    print(f"\nWatching directory '{watch_dir}' for new images...\nSupported formats: .png, .jpg, .jpeg, .bmp")
+    print(
+        f"\nWatching directory '{watch_dir}' for new images...\nSupported formats: .png, .jpg, .jpeg, .bmp"
+    )
 
     try:
         while True:
