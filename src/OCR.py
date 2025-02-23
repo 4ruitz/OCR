@@ -8,8 +8,7 @@ from PIL import Image
 import torch
 import snap7
 from snap7.util import set_int
-from Model import CNN  # Assuming your model is in Model.py
-
+from Model import CNN 
 
 class OCR:
     def __init__(self, model_path="model.pth", plc_ip='192.168.0.1', db_number=1, start_offset=0):
@@ -48,10 +47,8 @@ class OCR:
         data = bytearray(2)
         set_int(data, 0, int_value)
         
-        # Write to the datablock (DB)
         plc.db_write(self.db_number, self.start_offset, data)
         
-        # Disconnect from the PLC
         plc.disconnect()
         print(f"Integer {int_value} written to DB{self.db_number} at offset {self.start_offset}.")
 
@@ -65,15 +62,14 @@ class ImageHandler(FileSystemEventHandler):
     def on_created(self, event):
         if not event.is_directory and event.src_path.lower().endswith((".png", ".jpg", ".jpeg")):
             print(f"New image detected: {event.src_path}")
-            # Add the image path to the processing queue
             self.processing_queue.put(event.src_path)
 
     def _process_queue(self):
         while True:
             try:
                 file_path = self.processing_queue.get()
-                time.sleep(0.5)  # Ensure the file is ready
-                self.ocr.predict(file_path)  # Perform OCR on the image
+                time.sleep(0.5)
+                self.ocr.predict(file_path)
             except Exception as e:
                 print(f"Error in processing thread: {str(e)}")
             finally:
@@ -81,7 +77,7 @@ class ImageHandler(FileSystemEventHandler):
 
 
 def main():
-    watch_dir = "watch_folder"  # Set your folder path here
+    watch_dir = "FTP_Folder"  # Set your folder path here
     print(f"Watching directory: {watch_dir}")
 
     # Initialize OCR with PLC details
