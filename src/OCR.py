@@ -7,7 +7,7 @@ from torchvision import transforms
 from PIL import Image
 import torch
 import snap7
-from snap7.util import set_int
+from snap7.util import set_int, set_bool
 from Model import CNN
 
 
@@ -49,17 +49,37 @@ class OCR:
 
     def send_PLC(self, int_value):
         plc = snap7.client.Client()
-        plc.connect(self.plc_ip, 0, 1)
 
-        data = bytearray(2)
-        set_int(data, 0, int_value)
+        try:
+            plc.connect(self.plc_ip, 0, 1)
 
-        plc.db_write(self.db_number, self.start_offset, data)
+            # Send integer value
+            data = bytearray(2)
+            set_int(data, 0, int_value)
+            plc.db_write(self.db_number, self.start_offset, data)
+            print(f"Integer {int_value} written to DB{self.db_number} at offset {self.start_offset}.")
 
-        plc.disconnect()
-        print(
-            f"Integer {int_value} written to DB{self.db_number} at offset {self.start_offset}."
-        )
+            # Wait before sending the boolean bit
+            time.sleep(0.5)
+
+            # Send boolean bit (True)
+            bool_data = bytearray(1)
+            set_bool(bool_data, 0, 0, True)
+            plc.db_write(self.db_number, self.start_offset + 2, bool_data)
+            print("Boolean bit set to True.")
+
+            # Short delay before disconnecting
+            time.sleep(0.1)
+
+        except snap7.snap7exceptions.Snap7Exception as e:
+            print(f"PLC communication error: {e}")
+
+        finally:
+            if plc.get_connected():
+                plc.disconnect()
+                print("PLC connection closed.")
+
+
 
 
 class ImageHandler(FileSystemEventHandler):

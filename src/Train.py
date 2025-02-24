@@ -218,7 +218,7 @@ class ImageHandler(FileSystemEventHandler):
 
     def on_created(self, event):
         if not event.is_directory and event.src_path.lower().endswith(
-            (".png", ".jpg", ".jpeg", ".bmp")
+            (".png", ".jpg", ".jpeg")
         ):
             print(f"New image detected: {event.src_path}")
             self.processing_queue.put(event.src_path)
@@ -236,7 +236,7 @@ class ImageHandler(FileSystemEventHandler):
 
 
 def main():
-    watch_dir = Path("watch_directory").resolve()
+    watch_dir = Path("FTP_Folder").resolve()
     watch_dir.mkdir(exist_ok=True)
     print(f"Watch directory: {watch_dir}")
 
@@ -250,7 +250,7 @@ def main():
     observer.start()
 
     print(
-        f"\nWatching directory '{watch_dir}' for new images...\nSupported formats: .png, .jpg, .jpeg, .bmp"
+        f"\nWatching directory '{watch_dir}' for new images...\nSupported formats: .png, .jpg, .jpeg"
     )
 
     try:
