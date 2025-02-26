@@ -1,26 +1,21 @@
 import time
 import os
-import queue
-from queue import Queue
-import threading
 import torch
 from PIL import Image
 from torchvision import transforms
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from snap7.client import Client
+from snap7 import client
 from snap7.util import set_int, set_bool, get_int, get_bool
 from Model import CNN
 
 plc = None
 model = None
 transform = None
-image_queue = Queue()
-stop_processing = False
 
 def connect_plc():
     global plc
-    plc = Client()
+    plc = client.Client()
     try:
         plc.connect("192.168.0.1", 0, 1)
         print("PLC connected")
@@ -50,7 +45,6 @@ def process_image(image_path):
             return
             
         time.sleep(0.5)
-        
         image = Image.open(image_path).convert("L")
         image_tensor = transform(image).unsqueeze(0)
         
@@ -74,8 +68,9 @@ def send_to_plc(value):
         bool_data = bytearray(1)
         set_bool(bool_data, 0, 0, True)
         plc.db_write(1, 2, bool_data)
-        time.sleep(0.5)
+        time.sleep(0.1)
         
+        # Reset trigger bit
         set_bool(bool_data, 0, 0, False)
         plc.db_write(1, 2, bool_data)
         
@@ -98,42 +93,16 @@ def read_plc_values():
         print(f"Error reading from PLC: {e}")
         return None, None
 
-def queuing():
-    global stop_processing
-    print("Image processing worker started")
-    while not stop_processing:
-        try:
-            try:
-                image_path = image_queue.get(timeout=1.0)
-            except queue.Empty:
-                continue
-                
-            process_image(image_path)
-            
-            image_queue.task_done()
-            
-        except Exception as e:
-            print(f"Error in processing thread: {e}")
-    
-    print("Image processing worker stopped")
-
 class ImageWatcher(FileSystemEventHandler):
     def on_created(self, event):
         if not event.is_directory and event.src_path.lower().endswith((".png", ".jpg", ".jpeg")):
             print(f"New image detected: {event.src_path}")
-            image_queue.put(event.src_path)
+            process_image(event.src_path)
 
 def main():
-    global stop_processing
-    
-    os.makedirs("FTP_Folder", exist_ok=True)
-    
     load_model()
     
     connect_plc()
-    
-    worker_thread = threading.Thread(target=queuing, daemon=True)
-    worker_thread.start()
     
     observer = Observer()
     observer.schedule(ImageWatcher(), "FTP_Folder", recursive=False)
@@ -149,15 +118,9 @@ def main():
     except KeyboardInterrupt:
         print("Stopping...")
     finally:
-        stop_processing = True
-        
-        worker_thread.join(timeout=2.0)
-        
         observer.stop()
-        
         if plc and plc.get_connected():
             plc.disconnect()
-            
         observer.join()
         print("Program stopped")
 
