@@ -7,12 +7,15 @@ from watchdog.observers import Observer
 from torchvision import transforms
 from PIL import Image
 import torch
-from snap7.client import Client 
+from snap7.client import Client
 from snap7.util import set_int, set_bool
 from Model import CNN
 
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
 
 class PLCConnection:
     def __init__(self, plc_ip, db_number, start_offset):
@@ -41,7 +44,9 @@ class PLCConnection:
             data = bytearray(2)
             set_int(data, 0, int_value)
             self.plc.db_write(self.db_number, self.start_offset, data)
-            logging.info(f"Integer {int_value} written to DB{self.db_number} at offset {self.start_offset}.")
+            logging.info(
+                f"Integer {int_value} written to DB{self.db_number} at offset {self.start_offset}."
+            )
 
             bool_data = bytearray(1)
             set_bool(bool_data, 0, 0, bool_value)
@@ -56,7 +61,9 @@ class OCR:
     def __init__(self, model_path="model.pth", plc_connection=None):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = CNN().to(self.device)
-        self.model.load_state_dict(torch.load(model_path, map_location=self.device)["model_state_dict"])
+        self.model.load_state_dict(
+            torch.load(model_path, map_location=self.device)["model_state_dict"]
+        )
         self.model.eval()
 
         self.transform = transforms.Compose(
@@ -97,7 +104,9 @@ class ImageHandler(FileSystemEventHandler):
         threading.Thread(target=self._process_queue, daemon=True).start()
 
     def on_created(self, event):
-        if not event.is_directory and event.src_path.lower().endswith((".png", ".jpg", ".jpeg")):
+        if not event.is_directory and event.src_path.lower().endswith(
+            (".png", ".jpg", ".jpeg")
+        ):
             logging.info(f"New image detected: {event.src_path}")
             self.processing_queue.put(event.src_path)
 
