@@ -58,7 +58,7 @@ class PLCConnection:
 
 
 class OCR:
-    def __init__(self, model_path="model.pth", plc_connection=None):
+    def __init__(self, model_path="MNIST_cnn_model.pth", plc_connection=None):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = CNN().to(self.device)
         self.model.load_state_dict(

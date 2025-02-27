@@ -12,6 +12,11 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import threading
 import queue
+import logging
+
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 class CustomDataset(Dataset):
@@ -32,9 +37,9 @@ class CustomDataset(Dataset):
 
 
 class Trainer:
-    def __init__(self, model_path="model.pth", lr=0.001):
+    def __init__(self, model_path="MNIST_cnn_model.pth", lr=0.001):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        print(f"Using device: {self.device}")
+        logging.info(f"Using device: {self.device}")
         self.model = CNN().to(self.device)
         self.model_path = model_path
         self.transform = transforms.Compose(
@@ -49,7 +54,7 @@ class Trainer:
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr)
 
     def train_mnist(self, epochs=10, batch_size=64):
-        print("Training on MNIST dataset...")
+        logging.info("Training on MNIST dataset...")
 
         train_loader = DataLoader(
             datasets.MNIST("data", train=True, download=True, transform=self.transform),
@@ -75,7 +80,7 @@ class Trainer:
                 self.optimizer.step()
 
                 if batch_idx % 100 == 0:
-                    print(
+                    logging.info(
                         f"Train Epoch: {epoch+1} [{batch_idx * len(data)}/{len(train_loader.dataset)}]	Loss: {loss.item():.6f}"
                     )
 
@@ -84,7 +89,7 @@ class Trainer:
                 best_accuracy = accuracy
                 self.save_model()
 
-        print(f"Best accuracy: {best_accuracy:.2f}%")
+        logging.info(f"Best accuracy: {best_accuracy:.2f}%")
 
     def test(self, test_loader):
         self.model.eval()
@@ -99,7 +104,7 @@ class Trainer:
 
         test_loss /= len(test_loader.dataset)
         accuracy = 100.0 * correct / len(test_loader.dataset)
-        print(
+        logging.info(
             f"\nTest set: Average loss: {test_loss:.4f}, Accuracy: {correct}/{len(test_loader.dataset)} ({accuracy:.2f}%)\n"
         )
         return accuracy
@@ -112,16 +117,16 @@ class Trainer:
             },
             self.model_path,
         )
-        print(f"Model saved to {self.model_path}")
+        logging.info(f"Model saved to {self.model_path}")
 
     def load_model(self):
         if os.path.exists(self.model_path):
             checkpoint = torch.load(self.model_path, map_location=self.device)
             self.model.load_state_dict(checkpoint["model_state_dict"])
             self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
-            print("Model loaded successfully")
+            logging.info("Model loaded successfully")
             return True
-        print("No saved model found. Will train from scratch.")
+        logging.info("No saved model found. Will train from scratch.")
         return False
 
     def wait_for_file_ready(self, file_path, timeout=5, check_interval=0.1):
@@ -147,11 +152,11 @@ class Trainer:
         image_path = os.path.abspath(image_path)
 
         if not self.wait_for_file_ready(image_path):
-            print(f"Timeout waiting for file to be ready: {image_path}")
+            logging.info(f"Timeout waiting for file to be ready: {image_path}")
             return
 
         if not self.is_valid_image(image_path):
-            print(f"Invalid or corrupted image file: {image_path}")
+            logging.info(f"Invalid or corrupted image file: {image_path}")
             return
 
         image = Image.open(image_path).convert("L")
@@ -168,7 +173,7 @@ class Trainer:
         ).strip()
 
         if label == "":
-            print("Prediction confirmed")
+            logging.info("Prediction confirmed")
             return
 
         try:
@@ -176,19 +181,19 @@ class Trainer:
             if 0 <= label <= 9:
                 self.custom_images.append(image)
                 self.custom_labels.append(label)
-                print(f"Image added with label {label}")
+                logging.info(f"Image added with label {label}")
                 if len(self.custom_images) >= 20:
                     self.fine_tune()
             else:
-                print("Invalid label. Must be between 0 and 9")
+                logging.info("Invalid label. Must be between 0 and 9")
         except ValueError:
-            print("Invalid input. Must be a number between 0 and 9")
+            logging.error("Invalid input. Must be a number between 0 and 9")
 
     def fine_tune(self, epochs=3):
         if len(self.custom_images) == 0:
             return
 
-        print("\nFine-tuning model on custom images...")
+        logging.info("\nFine-tuning model on custom images...")
         custom_dataset = CustomDataset(
             self.custom_images, self.custom_labels, transform=self.transform
         )
@@ -204,10 +209,10 @@ class Trainer:
                 loss.backward()
                 self.optimizer.step()
 
-            print(f"Fine-tuning Epoch: {epoch+1}/{epochs}")
+            logging.info(f"Fine-tuning Epoch: {epoch+1}/{epochs}")
 
         self.save_model()
-        print("Fine-tuning completed")
+        logging.info("Fine-tuning completed")
 
 
 class ImageHandler(FileSystemEventHandler):
@@ -220,7 +225,7 @@ class ImageHandler(FileSystemEventHandler):
         if not event.is_directory and event.src_path.lower().endswith(
             (".png", ".jpg", ".jpeg")
         ):
-            print(f"New image detected: {event.src_path}")
+            logging.info(f"New image detected: {event.src_path}")
             self.processing_queue.put(event.src_path)
 
     def _process_queue(self):
@@ -230,7 +235,7 @@ class ImageHandler(FileSystemEventHandler):
                 time.sleep(0.5)
                 self.trainer.process_new_image(file_path)
             except Exception as e:
-                print(f"Error in processing thread: {str(e)}")
+                logging.error(f"Error in processing thread: {str(e)}")
             finally:
                 self.processing_queue.task_done()
 
@@ -238,7 +243,7 @@ class ImageHandler(FileSystemEventHandler):
 def main():
     watch_dir = Path("FTP_Folder").resolve()
     watch_dir.mkdir(exist_ok=True)
-    print(f"Watch directory: {watch_dir}")
+    logging.info(f"Watch directory: {watch_dir}")
 
     trainer = Trainer()
     if not trainer.load_model():
@@ -249,7 +254,7 @@ def main():
     observer.schedule(event_handler, path=str(watch_dir), recursive=False)
     observer.start()
 
-    print(
+    logging.info(
         f"\nWatching directory '{watch_dir}' for new images...\nSupported formats: .png, .jpg, .jpeg"
     )
 
@@ -258,7 +263,7 @@ def main():
             time.sleep(1)
     except KeyboardInterrupt:
         observer.stop()
-        print("\nStopping directory watch...")
+        logging.error("\nStopping directory watch...")
     observer.join()
 
 
