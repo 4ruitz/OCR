@@ -40,9 +40,9 @@ class PLCConnection:
             logging.error(f"Error disconnecting from PLC: {str(e)}")
 
     def send_data(self, int_value):
-        bool_data = bytearray(1)
-        data = bytearray(2)
         try:
+            bool_data = bytearray(1)
+            data = bytearray(2)
             set_int(data, 0, int_value)
             self.plc.db_write(self.db_number, self.start_offset, data)
             logging.info(

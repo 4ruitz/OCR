@@ -182,7 +182,7 @@ class Trainer:
                 self.custom_images.append(image)
                 self.custom_labels.append(label)
                 logging.info(f"Image added with label {label}")
-                if len(self.custom_images) >= 20:
+                if len(self.custom_images) >= 5:
                     self.fine_tune()
             else:
                 logging.info("Invalid label. Must be between 0 and 9")
