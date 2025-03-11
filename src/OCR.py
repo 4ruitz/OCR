@@ -8,7 +8,7 @@ from torchvision import transforms
 from PIL import Image
 import torch
 from snap7.client import Client
-from snap7.util import set_int, set_bool, get_bool
+from snap7.util import set_int, set_bool
 from Model import CNN
 
 
