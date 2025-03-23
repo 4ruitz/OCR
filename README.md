@@ -39,10 +39,7 @@ Default training configuration uses the MNIST dataset.
 
 2. Run inference: 
    ```bash:
-   python main.py
-3. Adjust slider for contrast (click within the window to enable the ocr) 
-![image](https://github.com/user-attachments/assets/68319b7e-dd5e-4123-bb59-f7100da12857)
-
+   python ocr.py
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](https://github.com/4ruitz/OCR/blob/main/LICENSE) file for details.

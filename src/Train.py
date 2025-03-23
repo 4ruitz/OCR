@@ -37,7 +37,7 @@ class CustomDataset(Dataset):
 
 
 class Trainer:
-    def __init__(self, model_path="MNIST_cnn_model.pth", lr=0.001):
+    def __init__(self, model_path="model.pth", lr=0.001):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         logging.info(f"Using device: {self.device}")
         self.model = CNN().to(self.device)
@@ -182,7 +182,7 @@ class Trainer:
                 self.custom_images.append(image)
                 self.custom_labels.append(label)
                 logging.info(f"Image added with label {label}")
-                if len(self.custom_images) >= 20:
+                if len(self.custom_images) >= 10:
                     self.fine_tune()
             else:
                 logging.info("Invalid label. Must be between 0 and 9")

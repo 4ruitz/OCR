@@ -8,7 +8,7 @@ from torchvision import transforms
 from PIL import Image
 import torch
 from snap7.client import Client
-from snap7.util import set_int, set_bool
+from snap7.util import set_int, set_bool, get_bool
 from Model import CNN
 
 
@@ -56,7 +56,7 @@ class PLCConnection:
             logging.error(f"PLC communication error: {str(e)}")
 
 class OCR:
-    def __init__(self, model_path="model.pth", plc_connection=None):
+    def __init__(self, model_path="MNIST_cnn_model.pth", plc_connection=None):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = CNN().to(self.device)
         self.model.load_state_dict(
@@ -115,6 +115,7 @@ class ImageHandler(FileSystemEventHandler):
         while True:
             try:
                 file_path = self.processing_queue.get()
+                time.sleep(0.5)  # Small delay to simulate image processing
                 self.ocr.predict(file_path)
             except Exception as e:
                 logging.error(f"Error in processing thread: {str(e)}")
