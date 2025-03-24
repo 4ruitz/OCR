@@ -37,7 +37,7 @@ class CustomDataset(Dataset):
 
 
 class Trainer:
-    def __init__(self, model_path="model.pth", lr=0.001):
+    def __init__(self, model_path="untuned_model.pth", lr=0.001):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         logging.info(f"Using device: {self.device}")
         self.model = CNN().to(self.device)
