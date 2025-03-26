@@ -128,7 +128,7 @@ def main():
     logging.info(f"Watching directory: {watch_dir}")
     plc_ip = "192.168.0.1"
 
-    plc_connection = PLCConnection(plc_ip=plc_ip, db_number=1, start_offset=0)
+    plc_connection = PLCConnection(plc_ip=plc_ip, db_number=2, start_offset=0)
     plc_connection.connect()
 
     ocr = OCR(model_path="model.pth", plc_connection=plc_connection)
