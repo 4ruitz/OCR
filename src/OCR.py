@@ -115,7 +115,6 @@ class ImageHandler(FileSystemEventHandler):
         while True:
             try:
                 file_path = self.processing_queue.get()
-                time.sleep(0.5)  # Small delay to simulate image processing
                 self.ocr.predict(file_path)
             except Exception as e:
                 logging.error(f"Error in processing thread: {str(e)}")
