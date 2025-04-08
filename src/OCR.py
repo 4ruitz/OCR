@@ -132,7 +132,7 @@ def main():
     plc_connection = PLCConnection(plc_ip=plc_ip, db_number=1, start_offset=0)
     plc_connection.connect()
 
-    ocr = OCR(model_path="model.pth", plc_connection=plc_connection)
+    ocr = OCR(model_path="models\model.pth", plc_connection=plc_connection)
     event_handler = ImageHandler(ocr)
     observer = Observer()
     observer.schedule(event_handler, path=watch_dir, recursive=False)
