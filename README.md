@@ -6,8 +6,6 @@ A simple project to recognize handwritten numbers (0-9) using a convolutional ne
 ## Features
 
 - **Pretrained Model:** Trained on the MNIST dataset for quick deployment.
-- **Custom Input:** Accepts user-provided images for inference via live webcam feed.
-
 ---
 
 ## Table of Contents
