@@ -45,13 +45,6 @@ class PLCConnection:
             set_bool(bool_data, 0, 0, True)
             self.plc.db_write(self.db_number, self.start_offset + 2, bool_data)
             logging.info(f"Boolean bit set to True.")
-            
-            data = bytearray(2)
-            set_int(data, 0, int_value)
-            self.plc.db_write(self.db_number, self.start_offset, data)
-            logging.info(
-                f"Integer {int_value} written to DB{self.db_number} at offset {self.start_offset}."
-            )
 
         except Exception as e:
             logging.error(f"PLC communication error: {str(e)}")
@@ -129,7 +122,7 @@ def main():
     logging.info(f"Watching directory: {watch_dir}")
     plc_ip = "192.168.0.1"
 
-    plc_connection = PLCConnection(plc_ip=plc_ip, db_number=1, start_offset=0)
+    plc_connection = PLCConnection(plc_ip=plc_ip, db_number=2, start_offset=0)
     plc_connection.connect()
 
     ocr = OCR(model_path="models\model.pth", plc_connection=plc_connection)
