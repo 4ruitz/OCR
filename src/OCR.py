@@ -41,10 +41,12 @@ class PLCConnection:
 
     def send_data(self, int_value):
         try:
-            bool_data = bytearray(1)
-            set_bool(bool_data, 0, 0, True)
-            self.plc.db_write(self.db_number, self.start_offset + 2, bool_data)
-            logging.info(f"Boolean bit set to True.")
+            data = bytearray(2)
+            set_int(data, 0, int_value)
+            self.plc.db_write(self.db_number, self.start_offset, data)
+            logging.info(
+                f"Integer {int_value} written to DB{self.db_number} at offset {self.start_offset}."
+            )
 
         except Exception as e:
             logging.error(f"PLC communication error: {str(e)}")
